@@ -35,3 +35,19 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 보안 - 민감 정보 ###
+application.yml
+application.properties
+application-*.yml
+!application.yml.example
+
+### macOS ###
+.DS_Store
+
+### Log files ###
+*.log
+logs/
+
+### Compiled ###
+*.class
