@@ -61,10 +61,10 @@ public class Pet extends BaseTime {
     }
 
     public void update(PetRequest.UpdateDTO updateDTO) {
-        if (this.name != null) this.name = updateDTO.getName();
-        if (this.age != null) this.age = updateDTO.getAge();
-        if (this.breed != null) this.breed = updateDTO.getBreed();
-        if (this.description != null) this.description = updateDTO.getDescription();
+        if (updateDTO.getName() != null) this.name = updateDTO.getName();
+        if (updateDTO.getAge() != null) this.age = updateDTO.getAge();
+        if (updateDTO.getBreed() != null) this.breed = updateDTO.getBreed();
+        if (updateDTO.getDescription() != null) this.description = updateDTO.getDescription();
     }
 
     public void updateImage(String profileImage) {

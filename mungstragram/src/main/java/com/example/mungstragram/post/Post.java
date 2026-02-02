@@ -60,4 +60,10 @@ public class Post extends BaseTime {
                 .displayOrder(order)
                 .build();
     }
+
+    public void update(PostRequest.UpdateDTO updateDTO) {
+        if (updateDTO.getContent() != null) this.content = updateDTO.getContent();
+        if (updateDTO.getTitle() != null) this.title = updateDTO.getTitle();
+    }
+
 }

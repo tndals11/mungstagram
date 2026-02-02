@@ -37,4 +37,21 @@ public class PostRequest {
                 .build();
       }
     }
+
+    @Data
+    public static class UpdateDTO {
+        @NotBlank(message = "게시글 제목은 필수입니다")
+        @Size(min = 1, max = 255, message = "제목의 길이는 1~255 사이입니다")
+        private String title;
+
+        @NotBlank(message = "게시글 내용은 필수입니다")
+        private String content;
+
+        @NotNull(message = "게시글 이미지는 필수입니다")
+        @Size(min = 1, max = 5, message = "이미지는 1~5개 까지만 업로드 가능합니다")
+        private List<MultipartFile> images;
+
+        private List<Long> imageIds;
+    }
+
 }
