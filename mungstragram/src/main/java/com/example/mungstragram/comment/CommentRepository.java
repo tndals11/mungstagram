@@ -1,6 +1,7 @@
 package com.example.mungstragram.comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,8 +22,18 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("""
         SELECT c FROM Comment c
         JOIN FETCH c.user u
+        LEFT JOIN FETCH c.children ch
+        LEFT JOIN FETCH ch.user chu
         WHERE c.post.id = :postId
+        AND c.parent IS NULL
         ORDER BY c.createdAt DESC
     """)
-    List<Comment> findAllCommentByPostId(@Param("postId") Long postId);
+    List<Comment> findAllByPostIdAndParentIsNull(@Param("postId") Long postId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        delete FROM Comment c
+        WHERE c.post.id = :id
+    """)
+    void deleteByPostId(@Param("id") Long id);
 }

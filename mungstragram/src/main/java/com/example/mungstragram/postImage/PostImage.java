@@ -19,7 +19,7 @@ public class PostImage extends BaseTime {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id",
+    @JoinColumn(name = "post_id", nullable = false,
         foreignKey = @ForeignKey(name = "fk_post_image_post_id")
     )
     private Post post;

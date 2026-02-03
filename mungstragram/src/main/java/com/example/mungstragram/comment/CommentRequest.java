@@ -3,7 +3,6 @@ package com.example.mungstragram.comment;
 import com.example.mungstragram.post.Post;
 import com.example.mungstragram.user.User;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -16,13 +15,15 @@ public class CommentRequest {
         @Size(min = 1, max = 255, message = "댓글은 최소 1~255 글자까지 작성이 가능합니다")
         private String content;
 
-        public Comment toEntity(User user, Post post) {
+        private Long parentId;
+
+        public Comment toEntity(User user, Post post, Comment parent) {
             return Comment.builder()
                     .user(user)
                     .post(post)
                     .content(this.content)
+                    .parent(parent)
                     .build();
         }
     }
-
 }

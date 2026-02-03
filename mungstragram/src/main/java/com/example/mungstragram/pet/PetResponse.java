@@ -14,15 +14,17 @@ public class PetResponse {
         private String description;
         private String profileImage;
         private Gender gender;
+        protected boolean isOwner;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
-        public DetailDTO(Pet pet) {
+        public DetailDTO(Pet pet, boolean isOwner) {
             this.name = pet.getName();
             this.age = pet.getAge();
             this.description = pet.getDescription();
             this.profileImage = "/images/" + pet.getProfileImage();
             this.gender = pet.getGender();
+            this.isOwner = isOwner;
             this.createdAt = pet.getCreatedAt();
             this.updatedAt = pet.getUpdatedAt();
         }
@@ -35,6 +37,7 @@ public class PetResponse {
        private String profileImage;
        private Gender gender;
        private Integer age;
+       private boolean isOwner;
 
        public ListDTO(Pet pet) {
            this.id = pet.getId();

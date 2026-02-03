@@ -2,6 +2,7 @@ package com.example.mungstragram.pet;
 
 import com.example.mungstragram._common.base.BaseTime;
 import com.example.mungstragram._common.enums.pet.Gender;
+import com.example.mungstragram._common.enums.pet.Status;
 import com.example.mungstragram.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -38,9 +39,13 @@ public class Pet extends BaseTime {
     @Column(nullable = false, length = 10)
     private Gender gender;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Status petStatus = Status.ACTIVE;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "user_id",
+            name = "user_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_pet_user_id")
     )
     private User user;
@@ -56,8 +61,9 @@ public class Pet extends BaseTime {
         this.gender = gender;
     }
 
-    public boolean isOwner(User loginUser) {
-        return this.user.getId().equals(loginUser.getId());
+    public boolean isOwner(Long userId) {
+        if (userId == null) return false;
+        return this.user.getId().equals(userId);
     }
 
     public void update(PetRequest.UpdateDTO updateDTO) {
@@ -71,4 +77,7 @@ public class Pet extends BaseTime {
         this.profileImage = profileImage;
     }
 
+    public void delete() {
+        this.petStatus = Status.DELETE;
+    }
 }

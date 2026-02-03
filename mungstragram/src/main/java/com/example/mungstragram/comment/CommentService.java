@@ -1,7 +1,9 @@
 package com.example.mungstragram.comment;
 
+import com.example.mungstragram._common.enums.notification.Type;
 import com.example.mungstragram._common.error.ErrorCode;
 import com.example.mungstragram._common.exception.CustomException;
+import com.example.mungstragram.notification.NotificationService;
 import com.example.mungstragram.post.Post;
 import com.example.mungstragram.post.PostRepository;
 import com.example.mungstragram.user.User;
@@ -20,6 +22,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void createComment(CommentRequest.CreateDTO createDTO, Long id,  Long userId) {
@@ -30,7 +33,24 @@ public class CommentService {
         Post postEntity = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        commentRepository.save(createDTO.toEntity(userEntity, postEntity));
+        Comment parentComment = null;
+        if (createDTO.getParentId() != null) {
+            parentComment = commentRepository.findById(createDTO.getParentId())
+                    .orElse(null);
+        }
+
+        commentRepository.save(createDTO.toEntity(userEntity, postEntity, parentComment));
+
+        if (parentComment != null) {
+            if (!parentComment.getUser().getId().equals(userId)) {
+                notificationService.createNotification(userEntity, parentComment.getUser(), postEntity, Type.COMMENT );
+            }
+
+        } else {
+            if (!postEntity.getUser().getId().equals(userId)) {
+                notificationService.createNotification(userEntity, postEntity.getUser(), postEntity, Type.COMMENT );
+            }
+        }
     }
 
     @Transactional
@@ -40,7 +60,7 @@ public class CommentService {
     }
 
     public List<CommentResponse.DetailDTO> listComment(Long id) {
-        return commentRepository.findAllCommentByPostId(id).stream()
+        return commentRepository.findAllByPostIdAndParentIsNull(id).stream()
                 .map(CommentResponse.DetailDTO::new)
                 .toList();
     }

@@ -50,12 +50,6 @@ public class PetRequest {
     }
 
     @Data
-    public static class DeleteDTO {
-        @NotNull(message = "1개의 아이디는 필수입니다")
-        private List<Long> petIds;
-    }
-
-    @Data
     public static class UpdateDTO {
 
         @Size(min = 1, max = 50, message = "이름은 1~50자 사이입니다")

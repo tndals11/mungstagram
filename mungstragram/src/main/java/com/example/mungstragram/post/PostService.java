@@ -6,6 +6,7 @@ import com.example.mungstragram._common.exception.CustomException;
 import com.example.mungstragram._common.utils.FileUtils;
 import com.example.mungstragram.comment.Comment;
 import com.example.mungstragram.comment.CommentRepository;
+import com.example.mungstragram.like.LikeRepository;
 import com.example.mungstragram.pet.Pet;
 import com.example.mungstragram.pet.PetRepository;
 import com.example.mungstragram.pet.PetResponse;
@@ -30,6 +31,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final FileUtils fileUtils;
     private final PostImageRepository postImageRepository;
+    private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
 
     @Transactional
@@ -41,7 +43,7 @@ public class PostService {
         Pet petEntity = petRepository.findById(createDTO.getPetId())
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
-        if (!petEntity.isOwner(userEntity)) {
+        if (!petEntity.isOwner(userEntity.getId())) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
@@ -54,17 +56,24 @@ public class PostService {
         }
 
         postRepository.save(post);
+
     }
 
     @Transactional
     public void deletePost(Long id, Long userId) {
 
-       Post postEntity = postRepository.findByIdWithUserId(id, userId)
-               .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND) );
+       Post postEntity = postRepository.findByIdWithUserId(id)
+               .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND) );
+
+       if (!postEntity.isOwner(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+       }
 
        for (PostImage image : postEntity.getImages()) {
            fileUtils.deleteFile(image.getImageUrl());
        }
+
+        commentRepository.deleteByPostId(id);
 
        postRepository.delete(postEntity);
     }
@@ -72,8 +81,12 @@ public class PostService {
     @Transactional
     public void updatePost(Long id, PostRequest.UpdateDTO updateDTO, Long userId) {
 
-        Post postEntity = postRepository.findByIdWithUserId(id, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND) );
+        Post postEntity = postRepository.findByIdWithUserId(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND) );
+
+        if (!postEntity.isOwner(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
 
         if (updateDTO.getImageIds() != null && !updateDTO.getImageIds().isEmpty()) {
             List<PostImage> images = postImageRepository.findAllById(updateDTO.getImageIds());
@@ -86,7 +99,7 @@ public class PostService {
         }
 
         if (updateDTO.getImages() != null && !updateDTO.getImages().isEmpty()) {
-            List<PostImage> images = postImageRepository.findByPostId(id);
+            List<PostImage> images = postRepository.findByPostId(id);
 
             int maxOrder = images.stream()
                     .map(PostImage::getDisplayOrder)
@@ -106,10 +119,17 @@ public class PostService {
 
     public PostResponse.DetailDTO detailPost(Long id, Long userId) {
 
-        Post postEntity = postRepository.findByIdWithUserId(id, userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND) );
+        Post postEntity = postRepository.findByIdWithUserId(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND) );
 
-        return new PostResponse.DetailDTO(postEntity);
+        boolean isLiked = false;
+        if (userId != null) {
+            isLiked = likeRepository.existsByPostIdAndUserId(id, userId);
+        }
+
+        boolean isOwner = postEntity.isOwner(userId);
+
+        return new PostResponse.DetailDTO(postEntity, isOwner, isLiked);
     }
 
     public List<PostResponse.ListDTO> listPost() {

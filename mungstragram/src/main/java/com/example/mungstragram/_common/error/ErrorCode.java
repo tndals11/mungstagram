@@ -21,7 +21,9 @@ public enum ErrorCode {
 
     PET_NOT_FOUND(404, "PE004", "존재하지않는 펫입니다."),
 
-    POST_NOT_FOUND(404, "P004", "존재하지않는 게시글입니다.");
+    POST_NOT_FOUND(404, "P004", "존재하지않는 게시글입니다."),
+
+    NOTIFICATION_NOT_FOUND(404, "N004", "존재하지 않는 알림입니다");
 
     private final Integer status;
     private final String code;

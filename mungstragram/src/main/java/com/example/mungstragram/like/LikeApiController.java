@@ -1,29 +1,29 @@
-package com.example.mungstragram.comment;
+package com.example.mungstragram.like;
 
 import com.example.mungstragram._common.dto.Response;
 import com.example.mungstragram.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class CommentApiController {
+public class LikeApiController {
 
-    private final CommentService commentService;
+    private final LikeService likeService;
 
-    /**
-     * 댓글 - 삭제
-     */
-    @DeleteMapping("/api/comments/{id}")
-    ResponseEntity<Response<Void>> deleteComment(
+    @PostMapping("/api/posts/{id}/likes")
+    ResponseEntity<Response<?>> likePosts(
             @PathVariable Long id,
             HttpSession session
     ) {
+
         User user = (User) session.getAttribute("sessionUser");
 
-        commentService.deleteComment(id, user.getId());
+        likeService.likePosts(id, user.getId());
 
         return ResponseEntity.ok(Response.ok(null));
     }

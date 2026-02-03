@@ -35,15 +35,15 @@ public class PetApiController {
     /**
      * 등록한 펫 삭제
      */
-    @DeleteMapping("/api/pets")
+    @DeleteMapping("/api/pets/{id}")
     ResponseEntity<Response<Void>> deletePet(
-        @Valid @RequestBody PetRequest.DeleteDTO deleteDTO,
+        @PathVariable Long id,
         HttpSession session
     ) {
 
         User user = (User) session.getAttribute("sessionUser");
 
-        petService.deletePet(deleteDTO, user.getId());
+        petService.deletePet(id, user.getId());
 
         return ResponseEntity.ok().body(Response.ok(null));
     }
@@ -79,7 +79,6 @@ public class PetApiController {
         return ResponseEntity.ok().body(Response.ok(detailDTO));
     }
 
-
     /**
      * 펫 - 전체조회
      */
@@ -89,7 +88,7 @@ public class PetApiController {
     ) {
         User user = (User) session.getAttribute("sessionUser");
 
-        List<PetResponse.ListDTO> listDTO = petService.listPet(user.getId());
+        List<PetResponse.ListDTO> listDTO = petService.listPet();
 
         return ResponseEntity.ok().body(Response.ok(listDTO));
     }

@@ -19,10 +19,13 @@ public class PostResponse {
         private String title;
         private String content;
         private List<String> fileImages;
+        private Integer likeCount;
+        private boolean isOwner;
+        private boolean isLiked;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
-        public DetailDTO(Post post) {
+        public DetailDTO(Post post, boolean isOwner, boolean isLiked) {
             this.nickname = post.getUser().getNickname();
             this.name = post.getPet().getName();
             this.age = post.getPet().getAge();
@@ -34,6 +37,9 @@ public class PostResponse {
             this.fileImages = post.getImages().stream()
                     .map(postImage -> "/images/" + postImage.getImageUrl())
                     .toList();
+            this.isOwner = isOwner;
+            this.isLiked = isLiked;
+            this.likeCount = post.getLikeCount();
             this.createdAt = post.getCreatedAt();
             this.updatedAt = post.getUpdatedAt();
         }

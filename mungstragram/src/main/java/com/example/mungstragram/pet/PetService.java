@@ -34,29 +34,27 @@ public class PetService {
     }
 
     @Transactional
-    public void deletePet(PetRequest.DeleteDTO deleteDTO, Long userId) {
+    public void deletePet(Long id, Long userId) {
 
-        User userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Pet petEntity = petRepository.findByIdWithUser(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
-        List<Pet> petEntities = petRepository.findAllByIdWithUser(deleteDTO.getPetIds());
-
-        for (Pet pet : petEntities) {
-            if (!pet.isOwner(userEntity)) {
-                throw new CustomException(ErrorCode.ACCESS_DENIED);
-            }
-            fileUtils.deleteFile(pet.getProfileImage());
+        if (!petEntity.isOwner(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        // 삭제 할 값이 엄청나게 많아진다면 InBatch를 사용하는게 성능은 더 좋아진다
-        petRepository.deleteAllByIdInBatch(deleteDTO.getPetIds());
+        petEntity.delete();
     }
 
     @Transactional
     public void updatePet(PetRequest.UpdateDTO updateDTO, Long id, Long userId) {
 
-        Pet petEntity = petRepository.findByIdWithUser(id, userId)
+        Pet petEntity = petRepository.findByIdWithUser(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
+
+        if (!petEntity.isOwner(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
 
         if (updateDTO.getProfileImage() != null && !updateDTO.getProfileImage().isEmpty()) {
             fileUtils.deleteFile(petEntity.getProfileImage());
@@ -71,14 +69,16 @@ public class PetService {
 
     public PetResponse.DetailDTO detailPet(Long id, Long userId) {
 
-        Pet petEntity = petRepository.findByIdWithUser(id, userId)
+        Pet petEntity = petRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
-        return new PetResponse.DetailDTO(petEntity);
+        boolean isOwner = petEntity.isOwner(userId);
+
+        return new PetResponse.DetailDTO(petEntity, isOwner);
     }
 
-    public List<PetResponse.ListDTO> listPet(Long userId) {
-        return petRepository.findAllByUserIdWithUser(userId).stream()
+    public List<PetResponse.ListDTO> listPet() {
+        return petRepository.findAllWithUser().stream()
                 .map(PetResponse.ListDTO::new)
                 .toList();
     }

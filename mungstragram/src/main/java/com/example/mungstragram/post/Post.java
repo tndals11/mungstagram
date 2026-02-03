@@ -1,6 +1,7 @@
 package com.example.mungstragram.post;
 
 import com.example.mungstragram._common.base.BaseTime;
+import com.example.mungstragram._common.exception.CustomException;
 import com.example.mungstragram.pet.Pet;
 import com.example.mungstragram.postImage.PostImage;
 import com.example.mungstragram.user.User;
@@ -27,17 +28,20 @@ public class Post extends BaseTime {
     private String title;
 
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "like_count", nullable = false)
+    private Integer likeCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id",
+    @JoinColumn(name = "user_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_post_user_id")
     )
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_id",
+    @JoinColumn(name = "pet_id", nullable = false,
         foreignKey = @ForeignKey(name = "fk_post_pet_id")
     )
     private Pet pet;
@@ -53,12 +57,19 @@ public class Post extends BaseTime {
         this.pet = pet;
     }
 
+    public boolean isOwner(Long userId) {
+        if (userId == null) return false;
+        return this.user.getId().equals(userId);
+    }
+
     public void addImage(String imageUrl, int order) {
         PostImage postImage = PostImage.builder()
                 .post(this)
                 .imageUrl(imageUrl)
                 .displayOrder(order)
                 .build();
+
+        this.images.add(postImage);
     }
 
     public void update(PostRequest.UpdateDTO updateDTO) {
@@ -66,4 +77,13 @@ public class Post extends BaseTime {
         if (updateDTO.getTitle() != null) this.title = updateDTO.getTitle();
     }
 
+    public void addLike() {
+        this.likeCount += 1;
+    }
+
+    public void removeLike() {
+        if (this.likeCount > 0) {
+            this.likeCount -= 1;
+        }
+    }
 }
