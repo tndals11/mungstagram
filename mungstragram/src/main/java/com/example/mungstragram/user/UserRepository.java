@@ -3,6 +3,8 @@ package com.example.mungstragram.user;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -14,4 +16,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsernameAndPassword(@NotBlank(message = "아이디는 필수입니다") String username, @NotBlank(message = "비밀번호는 필수입니다") String password);
 
     Optional<User> findByUsername(@NotBlank(message = "아이디는 필수입니다") String username);
+
+    @Query("""
+        SELECT u FROM User u
+        JOIN FETCH u.userRoles ur
+        WHERE u.username = :username
+        """)
+    Optional<User> findByUsernameWithRoles(@Param("username") String username);
 }

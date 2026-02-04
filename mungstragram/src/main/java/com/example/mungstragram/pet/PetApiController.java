@@ -1,11 +1,13 @@
 package com.example.mungstragram.pet;
 
 import com.example.mungstragram._common.dto.Response;
+import com.example.mungstragram.user.CustomUserDetails;
 import com.example.mungstragram.user.User;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,10 +24,10 @@ public class PetApiController {
     @PostMapping("/api/pets")
     ResponseEntity<Response<Void>> createPet(
             @Valid @ModelAttribute PetRequest.CreateDTO createDTO,
-            HttpSession session
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails
+            ) {
 
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         petService.createPet(createDTO, user.getId());
 
@@ -38,10 +40,10 @@ public class PetApiController {
     @DeleteMapping("/api/pets/{id}")
     ResponseEntity<Response<Void>> deletePet(
         @PathVariable Long id,
-        HttpSession session
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
 
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         petService.deletePet(id, user.getId());
 
@@ -55,9 +57,9 @@ public class PetApiController {
     ResponseEntity<Response<Void>> updatePet(
             @Valid @ModelAttribute PetRequest.UpdateDTO updateDTO,
             @PathVariable Long id,
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         petService.updatePet(updateDTO, id, user.getId());
 
@@ -65,32 +67,32 @@ public class PetApiController {
     }
 
     /**
-     * 펫 - 단건조회
-     */
-    @GetMapping("/api/pets/{id}")
-    ResponseEntity<Response<PetResponse.DetailDTO>> detailPet(
-            HttpSession session,
-            @PathVariable Long id
-    ) {
-        User user = (User) session.getAttribute("sessionUser");
-
-        PetResponse.DetailDTO detailDTO = petService.detailPet(id, user.getId());
-
-        return ResponseEntity.ok().body(Response.ok(detailDTO));
-    }
-
-    /**
      * 펫 - 전체조회
      */
     @GetMapping("/api/pets")
     ResponseEntity<Response<List<PetResponse.ListDTO>>> listPet(
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         List<PetResponse.ListDTO> listDTO = petService.listPet();
 
         return ResponseEntity.ok().body(Response.ok(listDTO));
+    }
+
+    /**
+     * 펫 - 단건조회
+     */
+    @GetMapping("/api/pets/{id}")
+    ResponseEntity<Response<PetResponse.DetailDTO>> detailPet(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ) {
+        User user = userDetails.getUser();
+
+        PetResponse.DetailDTO detailDTO = petService.detailPet(id, user.getId());
+
+        return ResponseEntity.ok().body(Response.ok(detailDTO));
     }
 
 }

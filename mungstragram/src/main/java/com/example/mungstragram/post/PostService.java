@@ -35,12 +35,12 @@ public class PostService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public void createPost(PostRequest.CreateDTO createDTO, Long userId) {
+    public void createPost(Long petId, PostRequest.CreateDTO createDTO, Long userId) {
 
         User userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Pet petEntity = petRepository.findById(createDTO.getPetId())
+        Pet petEntity = petRepository.findById(petId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
         if (!petEntity.isOwner(userEntity.getId())) {
@@ -132,8 +132,8 @@ public class PostService {
         return new PostResponse.DetailDTO(postEntity, isOwner, isLiked);
     }
 
-    public List<PostResponse.ListDTO> listPost() {
-        return postRepository.findAllWithPosts().stream()
+    public List<PostResponse.ListDTO> listPost(Long petId) {
+        return postRepository.findALLByPetIdWithPosts(petId).stream()
                 .map(PostResponse.ListDTO::new)
                 .toList();
     }

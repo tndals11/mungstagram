@@ -1,12 +1,16 @@
 package com.example.mungstragram.user;
 
 import com.example.mungstragram._common.dto.Response;
+import com.example.mungstragram._common.security.JwtProvider;
 import com.example.mungstragram.auth.AuthRequest;
 import com.example.mungstragram._common.enums.user.Status;
 import com.example.mungstragram._common.error.ErrorCode;
 import com.example.mungstragram._common.exception.CustomException;
+import com.example.mungstragram.role.Role;
+import com.example.mungstragram.role.RoleRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public void createUser(UserRequest.CreateDTO createDTO) {
@@ -28,7 +35,13 @@ public class UserService {
             throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
-        User userEntity = createDTO.toEntity();
+        User userEntity = createDTO.toEntity(passwordEncoder);
+
+        Role userRole = roleRepository.findByName("USER").
+                orElseThrow(() -> new CustomException(ErrorCode.ROLE_NOT_FOUND) );
+
+        userEntity.addRole(userRole);
+
         userRepository.save(userEntity);
     }
 
@@ -56,15 +69,15 @@ public class UserService {
         userEntity.withdraw();
     }
 
-    public void login(AuthRequest.LoginDTO loginDTO, HttpSession session){
+    public String login(AuthRequest.LoginDTO loginDTO){
         User userEntity = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!userEntity.getPassword().equals(loginDTO.getPassword())) {
+        if (!passwordEncoder.matches(loginDTO.getPassword(), userEntity.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAILED);
         }
 
-        session.setAttribute("sessionUser", userEntity);
+        return jwtProvider.create(userEntity);
     }
 
     public UserResponse.DetailDTO getByIdUser(Long id) {

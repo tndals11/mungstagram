@@ -16,7 +16,7 @@ public class LikeApiController {
     private final LikeService likeService;
 
     @PostMapping("/api/posts/{id}/likes")
-    ResponseEntity<Response<?>> likePosts(
+    ResponseEntity<Response<Void>> likePosts(
             @PathVariable Long id,
             HttpSession session
     ) {

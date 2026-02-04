@@ -2,11 +2,16 @@ package com.example.mungstragram.user;
 
 import com.example.mungstragram._common.base.BaseTime;
 import com.example.mungstragram._common.enums.user.Status;
+import com.example.mungstragram.role.Role;
+import com.example.mungstragram.user_role.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Entity: JPA 엔티티라는 표시
@@ -38,6 +43,9 @@ public class User extends BaseTime {
     @Column(nullable = false, length = 50)
     private Status status;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRole> userRoles = new ArrayList<>();
+
     @Builder
     public User(String username, String password, String nickname, Status status) {
         this.username = username;
@@ -46,12 +54,33 @@ public class User extends BaseTime {
         this.status = Status.ACTIVE;
     }
 
+    @Builder(builderMethodName = "innerBuilder")
+    public User(Long id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
+
     public void update(String newNickname) {
         this.nickname = newNickname;
     }
 
     public void withdraw() {
         this.status = Status.WITHDRAWN;
+    }
+
+    public void addRole(Role role) {
+        UserRole userRole = UserRole.builder()
+                .user(this)
+                .role(role)
+                .build();
+        this.userRoles.add(userRole);
+    }
+
+    public List<Role> getRoles() {
+        return userRoles.stream()
+                .map(UserRole::getRole)
+                .toList();
     }
 
 }

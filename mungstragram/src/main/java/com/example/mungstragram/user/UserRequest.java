@@ -4,6 +4,7 @@ import com.example.mungstragram._common.enums.user.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UserRequest {
 
@@ -24,10 +25,10 @@ public class UserRequest {
         /**
          * toEntity: request요청으로 받아온 값을 바로 Entity에 때려서 저장시킨다
          */
-        public User toEntity() {
+        public User toEntity(PasswordEncoder passwordEncoder) {
             return User.builder()
                     .username(this.username)
-                    .password(this.password)
+                    .password(passwordEncoder.encode(this.password))
                     .nickname(this.nickname)
                     .status(Status.ACTIVE)
                     .build();

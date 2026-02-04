@@ -1,10 +1,12 @@
 package com.example.mungstragram.notification;
 
 import com.example.mungstragram._common.dto.Response;
+import com.example.mungstragram.user.CustomUserDetails;
 import com.example.mungstragram.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,10 +22,10 @@ public class NotificationApiController {
     @GetMapping("/api/notifications/{id}")
     ResponseEntity<Response<NotificationResponse.DetailDTO>> detailNotification(
             @PathVariable Long id,
-            HttpSession session
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails
+            ) {
 
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         NotificationResponse.DetailDTO detailDTO = notificationService.detailNotification(id, user.getId());
 
@@ -32,9 +34,9 @@ public class NotificationApiController {
 
     @GetMapping("/api/notifications")
     ResponseEntity<Response<List<NotificationResponse.ListDTO>>> listNotification(
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         List<NotificationResponse.ListDTO> listDTO = notificationService.listNotification(user.getId());
 

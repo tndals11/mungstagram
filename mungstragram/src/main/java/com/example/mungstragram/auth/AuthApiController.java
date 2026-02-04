@@ -2,7 +2,6 @@ package com.example.mungstragram.auth;
 
 import com.example.mungstragram._common.dto.Response;
 import com.example.mungstragram.user.UserService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,21 +16,19 @@ public class AuthApiController {
     private final UserService userService;
 
     @PostMapping("/api/auth/login")
-    ResponseEntity<Response<Void>> login(
-        @Valid @RequestBody AuthRequest.LoginDTO loginDTO,
-        HttpSession session
+    ResponseEntity<Response<String>> login(
+        @Valid @RequestBody AuthRequest.LoginDTO loginDTO
     ) {
-        userService.login(loginDTO, session);
+        String jwtToken = userService.login(loginDTO);
 
-        return ResponseEntity.ok().body(Response.ok(null));
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + jwtToken)
+                .body(Response.ok(jwtToken));
     }
 
     @PostMapping("/api/auth/logout")
     ResponseEntity<Response<Void>> logout (
-            HttpSession session
     ) {
-        session.invalidate();
-
         return ResponseEntity.ok().body(Response.ok(null));
     }
 }

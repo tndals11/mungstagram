@@ -14,9 +14,6 @@ public class PostRequest {
     @Data
     public static class CreateDTO {
 
-        @NotNull(message = "펫 ID는 필수입니다")
-        private Long petId;
-
         @NotBlank(message = "게시글 제목은 필수입니다")
         @Size(min = 1, max = 255, message = "제목의 길이는 1~255 사이입니다")
         private String title;

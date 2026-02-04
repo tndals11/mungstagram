@@ -19,7 +19,7 @@ public class UserApiController {
     /**
      * 회원가입
      */
-    @PostMapping("/api/users")
+    @PostMapping("/api/users/register")
     ResponseEntity<Response<Void>> createUser(@Valid @RequestBody UserRequest.CreateDTO createDTO) {
 
         userService.createUser(createDTO);

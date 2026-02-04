@@ -4,11 +4,13 @@ import com.example.mungstragram._common.dto.Response;
 import com.example.mungstragram.comment.CommentRequest;
 import com.example.mungstragram.comment.CommentResponse;
 import com.example.mungstragram.comment.CommentService;
+import com.example.mungstragram.user.CustomUserDetails;
 import com.example.mungstragram.user.User;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,16 +25,26 @@ public class PostApiController {
     /**
      * 게시글 - 생성
      */
-    @PostMapping("/api/posts")
+    @PostMapping("/api/pets/{petId}/posts")
     ResponseEntity<Response<Void>> createPost(
+        @PathVariable Long petId,
         @Valid @ModelAttribute PostRequest.CreateDTO createDTO,
-        HttpSession session
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
-        postService.createPost(createDTO, user.getId());
+        postService.createPost(petId, createDTO, user.getId());
 
         return ResponseEntity.ok().body(Response.ok(null));
+    }
+
+    @GetMapping("/api/pets/{petId}/posts")
+    ResponseEntity<Response<List<PostResponse.ListDTO>>> listPost(
+            @PathVariable Long petId
+    ) {
+        List<PostResponse.ListDTO> listDTO = postService.listPost(petId);
+
+        return ResponseEntity.ok().body(Response.ok(listDTO));
     }
 
     /**
@@ -41,9 +53,9 @@ public class PostApiController {
     @DeleteMapping("/api/posts/{id}")
     ResponseEntity<Response<Void>> deletePost(
             @PathVariable Long id,
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         postService.deletePost(id, user.getId());
 
@@ -56,10 +68,10 @@ public class PostApiController {
     @PutMapping("/api/posts/{id}")
     ResponseEntity<Response<Void>> updatePost(
             @PathVariable Long id,
-            HttpSession session,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute PostRequest.UpdateDTO updateDTO
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         postService.updatePost(id, updateDTO, user.getId());
 
@@ -72,20 +84,13 @@ public class PostApiController {
     @GetMapping("/api/posts/{id}")
     ResponseEntity<Response<PostResponse.DetailDTO>> detailPost(
             @PathVariable Long id,
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         PostResponse.DetailDTO detailDTO = postService.detailPost(id, user.getId());
 
         return ResponseEntity.ok().body(Response.ok(detailDTO));
-    }
-
-    @GetMapping("/api/posts")
-    ResponseEntity<Response<List<PostResponse.ListDTO>>> listPost() {
-        List<PostResponse.ListDTO> listDTO = postService.listPost();
-
-        return ResponseEntity.ok().body(Response.ok(listDTO));
     }
 
     /**
@@ -93,11 +98,11 @@ public class PostApiController {
      */
     @PostMapping("/api/posts/{id}/comments")
     ResponseEntity<Response<Void>> createComment(
-            HttpSession session,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long id,
             @Valid @RequestBody CommentRequest.CreateDTO createDTO
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         commentService.createComment(createDTO, id, user.getId());
 
@@ -109,10 +114,10 @@ public class PostApiController {
      */
     @GetMapping("/api/posts/{id}/comments")
     ResponseEntity<Response<List<CommentResponse.DetailDTO>>> listComment(
-            HttpSession session,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long id
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         List<CommentResponse.DetailDTO> listComment = commentService.listComment(id);
 
