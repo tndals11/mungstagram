@@ -23,5 +23,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
         WHERE n.receiver.id = :userId
         ORDER BY n.createdAt DESC
         """)
-    List<Notification>  findAllByReceiverId(@Param("userId") Long userId);
+    List<Notification> findAllByReceiverId(@Param("userId") Long userId);
 }

@@ -37,5 +37,4 @@ public class Like extends BaseCreatedEntity {
         this.post = post;
     }
 
-
 }

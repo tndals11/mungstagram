@@ -95,4 +95,19 @@ public class PetApiController {
         return ResponseEntity.ok().body(Response.ok(detailDTO));
     }
 
+    /**
+     * 펫 - 특정 사용자 펫 전체조회
+     */
+    @GetMapping("/api/users/{userId}/pets")
+    ResponseEntity<Response<List<PetResponse.ListDTO>>> getPetsByUserId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long userId
+    ) {
+        User user = userDetails.getUser();
+
+        List<PetResponse.ListDTO> petListDTO = petService.getPetsByUserId(userId);
+
+        return ResponseEntity.ok().body(Response.ok(petListDTO));
+    }
+
 }

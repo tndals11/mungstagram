@@ -44,7 +44,11 @@ public class NotificationService {
 
     public List<NotificationResponse.ListDTO> listNotification(Long userId) {
 
+        System.out.println(userId);
+
        List<Notification> notificationEntity = notificationRepository.findAllByReceiverId(userId);
+
+        System.out.println(notificationEntity);
 
        return notificationEntity.stream()
                .map(NotificationResponse.ListDTO::new)

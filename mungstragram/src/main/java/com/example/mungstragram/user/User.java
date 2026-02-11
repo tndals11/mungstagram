@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +55,17 @@ public class User extends BaseTime {
         this.status = Status.ACTIVE;
     }
 
-    @Builder(builderMethodName = "innerBuilder")
-    public User(Long id, String username) {
-        this.id = id;
-        this.username = username;
+    public static User forAuthentication(Long id, String username, List<UserRole> userRoles) {
+        User user = new User();
+        user.id = id;
+        user.username = username;
+        user.userRoles = userRoles;
+        return user;
     }
 
+    public void isOwner(Long userId) {
+
+    }
 
     public void update(String newNickname) {
         this.nickname = newNickname;

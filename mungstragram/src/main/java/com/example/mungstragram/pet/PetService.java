@@ -82,4 +82,10 @@ public class PetService {
                 .map(PetResponse.ListDTO::new)
                 .toList();
     }
+
+    public List<PetResponse.ListDTO> getPetsByUserId(Long userId) {
+        return petRepository.findAllByUserId(userId).stream()
+                .map(PetResponse.ListDTO::new)
+                .toList();
+    }
 }

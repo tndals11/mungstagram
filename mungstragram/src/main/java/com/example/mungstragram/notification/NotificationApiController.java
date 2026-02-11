@@ -40,6 +40,8 @@ public class NotificationApiController {
 
         List<NotificationResponse.ListDTO> listDTO = notificationService.listNotification(user.getId());
 
+        System.out.println(listDTO);
+
         return ResponseEntity.ok(Response.ok(listDTO));
     }
 

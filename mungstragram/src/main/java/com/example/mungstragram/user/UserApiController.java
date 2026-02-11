@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,9 +33,9 @@ public class UserApiController {
      */
     @GetMapping("/api/users/me")
     ResponseEntity<Response<UserResponse.DetailDTO>> getByIdUser(
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         UserResponse.DetailDTO detailDTO =  userService.getByIdUser(user.getId());
 
@@ -47,9 +48,9 @@ public class UserApiController {
     @PatchMapping("/api/users/me")
     ResponseEntity<Response<Void>> updateUser(
             @Valid @RequestBody UserRequest.UpdateDTO updateDTO,
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
 
         userService.updateUser(updateDTO, user.getId());
 
@@ -61,9 +62,11 @@ public class UserApiController {
      */
     @PatchMapping("/api/users/me/withdraw")
     ResponseEntity<Response<Void>> withdrawUser(
-            HttpSession session
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        User user = (User) session.getAttribute("sessionUser");
+        User user = userDetails.getUser();
+
+        System.out.println(user);
 
         userService.withdrawUser(user.getId());
 

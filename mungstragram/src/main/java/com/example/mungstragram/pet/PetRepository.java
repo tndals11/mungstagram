@@ -18,9 +18,15 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     @Query("""
         SELECT p FROM Pet p
-            JOIN FETCH p.user u
+        JOIN FETCH p.user u
         ORDER BY p.createdAt DESC
         """)
     List<Pet> findAllWithUser();
 
+    @Query("""
+        SELECT p FROM Pet p
+        WHERE p.user.id = :userId
+        ORDER BY p.createdAt DESC
+        """)
+    List<Pet> findAllByUserId(@Param("userId") Long userId);
 }

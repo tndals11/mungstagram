@@ -13,11 +13,10 @@ function Header() {
     const currentToken = localStorage.getItem('token');
     setToken(currentToken);
 
-    alert(currentToken);
   }, [location])
 
   const handelLogout = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem('token');
     alert('로그아웃 되었습니다.');
     navigate('/login');
   };
@@ -35,7 +34,7 @@ function Header() {
         </Link>
 
         <nav className='flex items-center space-x-8'>
-          <Link to="/posts" className="text-sm text-black hover:text-orange-400 transition-colors">
+          <Link to="/pets" className="text-sm text-black hover:text-orange-400 transition-colors">
             펫등록
           </Link>
           <Link to="/posts" className="text-sm text-black hover:text-orange-400  transition-colors">

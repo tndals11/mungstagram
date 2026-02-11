@@ -38,6 +38,9 @@ public class PostApiController {
         return ResponseEntity.ok().body(Response.ok(null));
     }
 
+    /**
+     * 게시글 전체조회
+     */
     @GetMapping("/api/pets/{petId}/posts")
     ResponseEntity<Response<List<PostResponse.ListDTO>>> listPost(
             @PathVariable Long petId
