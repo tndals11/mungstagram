@@ -39,7 +39,7 @@ public class SecurityConfig {
                     .requestMatchers(
                             "/css/**", "/js/**", "/static/**", "/webjars/**",
                             "/img/**", "/images/**", "/upload/**", "/favicon.ico").permitAll()
-                    .requestMatchers("/api/auth/login", "/api/auth/logout", "/api/users/register").permitAll()
+                    .requestMatchers("/api/auth/**", "/api/users/register").permitAll()
 
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/users/me/**").hasRole("USER")

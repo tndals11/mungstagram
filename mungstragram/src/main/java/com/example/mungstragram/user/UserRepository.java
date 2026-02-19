@@ -1,5 +1,6 @@
 package com.example.mungstragram.user;
 
+import com.example.mungstragram._common.enums.user.OAuthProvider;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
         WHERE u.username = :username
         """)
     Optional<User> findByUsernameWithRoles(@Param("username") String username);
+
+    Optional<User> findByProviderAndProviderId(OAuthProvider provider, String providerId);
 }
