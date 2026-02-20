@@ -3,6 +3,7 @@ package com.example.mungstragram.auth;
 import com.example.mungstragram._common.enums.user.OAuthProvider;
 import com.example.mungstragram._common.enums.user.Status;
 import com.example.mungstragram._common.security.JwtProvider;
+import com.example.mungstragram.refresh_token.RefreshTokenService;
 import com.example.mungstragram.user.User;
 import com.example.mungstragram.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class GoogleAuthService {
     private String redirectUri;
 
     private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
 
     public String getGoogleUrl() {
         return "https://accounts.google.com/o/oauth2/v2/auth"
@@ -63,6 +65,9 @@ public class GoogleAuthService {
                     return userRepository.save(newUser);
                 });
 
+        String refreshToken = jwtProvider.createRefreshToken(user.getId());
+
+        refreshTokenService.save(user.getId(), refreshToken);
 
         return jwtProvider.create(user);
     }

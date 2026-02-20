@@ -15,19 +15,22 @@ public class AuthApiController {
     private final GoogleAuthService googleAuthService;
 
     @PostMapping("/api/auth/login")
-    ResponseEntity<Response<String>> login(
+    ResponseEntity<Response<AuthResponse.LoginTokenDTO>> login(
         @Valid @RequestBody AuthRequest.LoginDTO loginDTO
     ) {
-        String jwtToken = userService.login(loginDTO);
+        AuthResponse.LoginTokenDTO loginTokenDTO = userService.login(loginDTO);
 
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)
-                .body(Response.ok(jwtToken));
+                .header("Authorization", "Bearer " + loginTokenDTO.getAccessToken())
+                .header("RefreshToken", loginTokenDTO.getRefreshToken())
+                .body(Response.ok(null));
     }
 
     @PostMapping("/api/auth/logout")
     ResponseEntity<Response<Void>> logout (
+            @RequestHeader("refreshToken") String refreshToken
     ) {
+        userService.logout(refreshToken);
         return ResponseEntity.ok().body(Response.ok(null));
     }
 
@@ -49,5 +52,16 @@ public class AuthApiController {
                 .body(Response.ok(jwtToken));
     }
 
+    @PostMapping("/api/auth/reissueToken")
+    public ResponseEntity<Response<Void>> reissueToken(
+            @RequestHeader("RefreshToken") String refreshToken
+    ) {
+
+        String newAccessToken = userService.reissueToken(refreshToken);
+
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + newAccessToken)
+                .body(Response.ok(null));
+    }
 
 }

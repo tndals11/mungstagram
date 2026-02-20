@@ -17,8 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tools.jackson.databind.ObjectMapper;
@@ -55,8 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰 내부에 숨겨둔 유저 id를 꺼낸다.
             Long id = decodedJWT.getClaim("id").asLong();
 
-            System.out.println(id);
-
             // 토큰 내부에 숨겨둔 이름을 꺼낸다
             String username = decodedJWT.getSubject();
 
@@ -84,14 +80,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 가짜 사용자를 만들어준다
             User user = User.forAuthentication(id, username, userRoles);
 
-            System.out.println(user.getId());
-            System.out.println(user.getUsername());
-            System.out.println(user.getUserRoles());
-
             // 내가 만들어둔 사용자 도시락 포장지에 넣어준다
             CustomUserDetails userDetails = new CustomUserDetails(user);
-
-            System.out.println(userDetails.getAuthorities());
 
             // 강제로 로그인 인증 처리를 한다
             Authentication authentication = new UsernamePasswordAuthenticationToken(
