@@ -38,7 +38,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
                             "/css/**", "/js/**", "/static/**", "/webjars/**",
-                            "/img/**", "/images/**", "/upload/**", "/favicon.ico").permitAll()
+                            "/img/**", "/images/**", "/upload/**", "/favicon.ico",
+                            "/swagger-ui/**", "/swagger-ui.html", "/api-docs/**"
+                    ).permitAll()
                     .requestMatchers("/api/auth/**", "/api/users/register").permitAll()
 
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
